@@ -1,0 +1,11 @@
+{
+  "name": "Example App",
+  "subtitle": "A short App Store subtitle",
+  "description": "Describe what the app does, who it is for, and what happens on first launch.\n\nKeep this honest. Reviewers will compare it with the binary.",
+  "keywords": "example,utility,offline",
+  "promotionalText": "A one-line promotional sentence.",
+  "whatsNew": "Initial release.",
+  "marketingUrl": "https://example.com/",
+  "supportUrl": "https://example.com/support",
+  "privacyPolicyUrl": "https://example.com/privacy"
+}

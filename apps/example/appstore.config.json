@@ -1,0 +1,46 @@
+{
+  "app": {
+    "name": "Example App",
+    "bundleId": "com.example.myapp",
+    "sku": "example-ios",
+    "platform": "IOS",
+    "primaryLocale": "en-US",
+    "profile": "example"
+  },
+  "xcode": {
+    "project": "/absolute/path/to/ExampleApp.xcodeproj",
+    "scheme": "ExampleApp",
+    "configuration": "Release",
+    "destination": "generic/platform=iOS",
+    "archivePath": "build/example/ExampleApp.xcarchive",
+    "exportPath": "build/example/export",
+    "exportOptionsPlist": "apps/example/ExportOptions.plist",
+    "developerDir": "/Applications/Xcode.app/Contents/Developer"
+  },
+  "appStore": {
+    "version": "1.0",
+    "contentRightsDeclaration": "DOES_NOT_USE_THIRD_PARTY_CONTENT",
+    "primaryCategory": "UTILITIES"
+  },
+  "signing": {
+    "profileName": "Example App Store",
+    "certificateId": "YOUR_ASC_CERTIFICATE_ID",
+    "certificateSerial": "YOUR_DISTRIBUTION_CERT_SERIAL"
+  },
+  "metadata": {
+    "directory": "apps/example/metadata",
+    "locales": ["en-US"]
+  },
+  "pricing": {
+    "price": "free",
+    "baseTerritory": "USA",
+    "global": true
+  },
+  "screenshots": {
+    "directory": "apps/example/screenshots",
+    "requiredDisplayTypes": ["APP_IPHONE_67"]
+  },
+  "upload": {
+    "ipaPath": "build/example/export/ExampleApp.ipa"
+  }
+}
