@@ -1,25 +1,25 @@
 # appstorectl
 
-Local CLI for App Store Connect release work: archive with Xcode, upload an IPA, sync metadata, attach a processed build, and submit for review.
+[English](./README.en.md)
 
-This repository is the **engine + an example app folder**. Put your real apps, review contacts, certificates, and screenshots in a private working copy. Do not commit them here.
+本地命令行工具，用来走 App Store Connect 发版：用 Xcode 打包、上传 IPA、同步元数据、挂上已处理完的构建，再提交审核。
 
-本地命令行工具，用来走 App Store Connect 发版。这个仓库只有引擎和一份示例配置。你自己的 App、审核电话、证书和截图请放在私有目录，不要推到公开仓库。
+这个仓库是**引擎 + 一份示例 App 目录**。你自己的 App、审核联系人、证书和截图请放在本机私有副本里，不要提交到这里。
 
-## Why this exists
+## 为什么要做这个
 
-The App Store Connect API can do a lot of the repetitive work, but a few things still fail in non-obvious ways:
+App Store Connect API 能处理不少重复劳动，但有几处很容易踩坑：
 
-- API Keys cannot create an app record (`POST /v1/apps` → 403)
-- API Keys cannot Cloud-sign; export needs a local Distribution cert + `IOS_APP_STORE` profile
-- `upload-build` does not attach the build to the version
-- The first IPA sits in `PROCESSING` for minutes; `--build 1` may not match marketing version `1.0`
-- App Privacy nutrition labels have no public write API and must be **Published** in the web UI
-- The old `appStoreVersionSubmissions` create endpoint is gone
+- API Key **不能创建 App 记录**（`POST /v1/apps` 会返回 403）
+- API Key **不能做 Cloud 签名**；导出 IPA 需要本机的 Distribution 证书，以及 `IOS_APP_STORE` 描述文件
+- `upload-build` **不会**把构建挂到版本上
+- 第一次上传的 IPA 会在 `PROCESSING` 里停几分钟；`--build 1` 也可能对不上营销版本号 `1.0`
+- App Privacy（营养标签）**没有公开的写入接口**，必须在网页里填写并 **Publish**
+- 旧的 `appStoreVersionSubmissions` 创建接口已经下线
 
-`appstorectl` turns those into commands you can re-run.
+`appstorectl` 把这些步骤收成可以反复执行的命令。
 
-## Install
+## 安装
 
 ```bash
 git clone https://github.com/jqlong17/appstorectl.git
@@ -27,13 +27,13 @@ cd appstorectl
 npm link
 ```
 
-Or run it in place:
+也可以直接在仓库里跑：
 
 ```bash
 node ./bin/appstorectl.js --help
 ```
 
-Requires Node 20+, full Xcode.app, and an App Store Connect API Key.
+需要 Node 20+、完整的 Xcode.app，以及一把 App Store Connect API Key。
 
 ```bash
 export ASC_ISSUER_ID="..."
@@ -42,9 +42,9 @@ export ASC_PRIVATE_KEY_PATH="$HOME/.appstoreconnect/private_keys/AuthKey_$ASC_KE
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 ```
 
-Copy the `.p8` into `~/.appstoreconnect/private_keys/` as well. `xcrun altool` looks there. Never commit the key.
+请把 `.p8` 也复制到 `~/.appstoreconnect/private_keys/`。`xcrun altool` 会去那里找密钥。永远不要把密钥提交进仓库。
 
-## Add your own app (keep it private)
+## 加入你自己的 App（保持私有）
 
 ```text
 apps/myapp/appstore.config.json
@@ -55,14 +55,12 @@ apps/myapp/screenshots/APP_IPHONE_67/
 profiles/me.json
 ```
 
-Copy `apps/example` and `profiles/example.json`. The public `.gitignore` already ignores extra `apps/*` and `profiles/*` except the example.
+从 `apps/example` 和 `profiles/example.json` 复制一份即可。公开仓库的 `.gitignore` 已经忽略除 `example` 以外的 `apps/` 和 `profiles/`，在公开克隆里加自己的 App，一般不会被误提交。
 
-`.gitignore` 已经忽略除 `example` 以外的 `apps/` 和 `profiles/`。在公开克隆里加自己的 App 一般不会被误提交。
-
-## Typical flow
+## 常见流程
 
 ```bash
-appstorectl prepare-new-app myapp          # creates Bundle ID; tells you to create the app in the web UI
+appstorectl prepare-new-app myapp          # 创建 Bundle ID；然后提醒你去网页新建 App
 appstorectl inspect-app myapp
 appstorectl ensure-store-profile myapp
 appstorectl build myapp
@@ -78,28 +76,28 @@ python3 ./scripts/prepare_screenshots.py \
   --display-type APP_IPHONE_67
 appstorectl upload-screenshots myapp --replace
 node ./scripts/asc_release_check.js --app myapp
-# App Privacy in the web UI, then Publish
-appstorectl submit myapp --yes             # refuses without --yes
+# 在网页里填 App Privacy，然后 Publish
+appstorectl submit myapp --yes             # 没有 --yes 会拒绝提交
 ```
 
-iPhone-only screenshot slot is `APP_IPHONE_67` (1290×2796). iPad 13-inch is `APP_IPAD_PRO_3GEN_129` (2048×2732).
+仅 iPhone 的截图槽位是 `APP_IPHONE_67`（1290×2796）。13 寸 iPad 是 `APP_IPAD_PRO_3GEN_129`（2048×2732）。
 
 ## Cursor skill
 
-A drop-in agent skill lives in [`skill/SKILL.md`](./skill/SKILL.md). Copy it into your Cursor skills folder if you want the same release checklist in chat.
+[`skill/SKILL.md`](./skill/SKILL.md) 里有一份可直接给 Agent 用的发版清单。需要的话，复制到你的 Cursor skills 目录。
 
-## Docs
+## 文档
 
-- [docs/first-ios-app.md](./docs/first-ios-app.md) — first submission, agreement banner, waiting for PROCESSING
-- [docs/review-submission.md](./docs/review-submission.md) — `reviewSubmissions` three-step flow
-- [docs/signing.md](./docs/signing.md) — manual Distribution signing
+- [docs/first-ios-app.md](./docs/first-ios-app.md) — 第一次提交、协议横幅、等待 PROCESSING
+- [docs/review-submission.md](./docs/review-submission.md) — `reviewSubmissions` 三步流程
+- [docs/signing.md](./docs/signing.md) — 本机 Distribution 签名
 
-## What this tool does not do
+## 这个工具不会做的事
 
-- Create the App Store Connect **app record** (web UI)
-- Fill and **Publish** App Privacy labels (web UI)
-- Invent a Distribution certificate if you do not have one locally
+- 创建 App Store Connect 上的 **App 记录**（请用网页）
+- 填写并 **Publish** App Privacy 标签（请用网页）
+- 在本机没有 Distribution 证书时，替你凭空造一张
 
-## License
+## 许可证
 
 MIT
