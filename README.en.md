@@ -6,20 +6,27 @@ Local CLI for App Store Connect release work: archive with Xcode, upload an IPA,
 
 This repository is the **engine + an example app folder**. Put your real apps, review contacts, certificates, and screenshots in a private working copy. Do not commit them here.
 
-## Why this exists
+## Who it’s for / vs fastlane
 
-The App Store Connect API can do a lot of the repetitive work, but a few things still fail in non-obvious ways:
+Built for **indie iOS / macOS developers who ship from their own Mac**: you want a repeatable release path without standing up a full Ruby / fastlane stack first, and you want ASC gotchas encoded as commands instead of tribal knowledge.
 
-- API Keys cannot create an app record (`POST /v1/apps` → 403)
-- API Keys cannot Cloud-sign; export needs a local Distribution cert + `IOS_APP_STORE` profile
-- `upload-build` does not attach the build to the version
-- The first IPA sits in `PROCESSING` for minutes; `--build 1` may not match marketing version `1.0`
-- App Privacy nutrition labels have no public write API and must be **Published** in the web UI
-- The old `appStoreVersionSubmissions` create endpoint is gone
+Compared with fastlane (short version):
 
-`appstorectl` turns those into commands you can re-run.
+- **Lighter**: one Node CLI (Node ≥20); `npm i -g` — no Ruby gem toolchain.
+- **Narrower scope**: local archive → upload → attach → metadata → submit; not a full CI platform.
+- **ASC gotchas baked in**: API Keys cannot create apps or Cloud-sign; upload ≠ attach; `--wait` for PROCESSING; legacy submission create is gone.
+- **Web UI still required**: creating the app record and Publishing App Privacy stay in App Store Connect.
+- **Data stays private**: the published package ships only `apps/example`; real apps and contacts live on your machine.
+
+If you need team-scale multi-lane / multi-platform automation, keep fastlane. If you are one person with a Mac and your own ASC key, this is the lighter default path.
 
 ## Install
+
+```bash
+npm i -g appstorectl
+```
+
+Or from source:
 
 ```bash
 git clone https://github.com/jqlong17/appstorectl.git
@@ -43,6 +50,40 @@ export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 ```
 
 Copy the `.p8` into `~/.appstoreconnect/private_keys/` as well. `xcrun altool` looks there. Never commit the key.
+
+Minimal one-flow (after `apps/example` points at your Xcode project):
+
+```bash
+appstorectl doctor example
+appstorectl build example
+appstorectl upload-build example
+appstorectl attach-build example --wait
+appstorectl sync-metadata example --create-version
+appstorectl submit example --yes
+```
+
+## Demo
+
+- Pipeline diagram: [docs/assets/release-pipeline.svg](./docs/assets/release-pipeline.svg)
+- Terminal ASCII walkthrough: [docs/demo.md](./docs/demo.md)
+- Promo one-pager (Chinese): [docs/promo.md](./docs/promo.md)
+
+```text
+doctor → build → upload → attach → sync → submit
+```
+
+## Why this exists
+
+The App Store Connect API can do a lot of the repetitive work, but a few things still fail in non-obvious ways:
+
+- API Keys cannot create an app record (`POST /v1/apps` → 403)
+- API Keys cannot Cloud-sign; export needs a local Distribution cert + `IOS_APP_STORE` profile
+- `upload-build` does not attach the build to the version
+- The first IPA sits in `PROCESSING` for minutes; `--build 1` may not match marketing version `1.0`
+- App Privacy nutrition labels have no public write API and must be **Published** in the web UI
+- The old `appStoreVersionSubmissions` create endpoint is gone
+
+`appstorectl` turns those into commands you can re-run.
 
 ## Add your own app (keep it private)
 
@@ -91,6 +132,8 @@ A drop-in agent skill lives in [`skill/SKILL.md`](./skill/SKILL.md). Copy it int
 - [docs/first-ios-app.md](./docs/first-ios-app.md) — first submission, agreement banner, waiting for PROCESSING
 - [docs/review-submission.md](./docs/review-submission.md) — `reviewSubmissions` three-step flow
 - [docs/signing.md](./docs/signing.md) — manual Distribution signing
+- [docs/demo.md](./docs/demo.md) — terminal demo walkthrough
+- [docs/promo.md](./docs/promo.md) — promo one-pager (Chinese)
 
 ## What this tool does not do
 

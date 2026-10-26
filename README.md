@@ -6,20 +6,27 @@
 
 这个仓库是**引擎 + 一份示例 App 目录**。你自己的 App、审核联系人、证书和截图请放在本机私有副本里，不要提交到这里。
 
-## 为什么要做这个
+## 给谁用 / 和 fastlane 差在哪
 
-App Store Connect API 能处理不少重复劳动，但有几处很容易踩坑：
+面向**独立 iOS / macOS 开发者、主要在自己 Mac 上发版**的人：不想为交一版先搭一整套 Ruby / fastlane，又希望 ASC 常见坑被写进命令而不是靠记忆。
 
-- API Key **不能创建 App 记录**（`POST /v1/apps` 会返回 403）
-- API Key **不能做 Cloud 签名**；导出 IPA 需要本机的 Distribution 证书，以及 `IOS_APP_STORE` 描述文件
-- `upload-build` **不会**把构建挂到版本上
-- 第一次上传的 IPA 会在 `PROCESSING` 里停几分钟；`--build 1` 也可能对不上营销版本号 `1.0`
-- App Privacy（营养标签）**没有公开的写入接口**，必须在网页里填写并 **Publish**
-- 旧的 `appStoreVersionSubmissions` 创建接口已经下线
+和 fastlane 的粗对比：
 
-`appstorectl` 把这些步骤收成可以反复执行的命令。
+- **更轻**：一个 Node CLI（≥20），`npm i -g` 即可；无需 Ruby gem 栈。
+- **场景更窄**：专注本机 archive → 上传 → 挂构建 → 元数据 → 提交，不做完整 CI 平台。
+- **ASC 坑写进命令**：API Key 不能建 App / 不能 Cloud 签；upload ≠ attach；`--wait` 等 PROCESSING；旧 submission API 已下线。
+- **不替代网页**：App 记录创建、App Privacy Publish 仍须在 App Store Connect 网页完成。
+- **数据隔离**：公开包只带 `apps/example`；真实 App 与联系人留在本机。
+
+适合「一个人 + 一台 Mac + 一把自己的 ASC Key」。团队级多 lane / 多平台自动化，继续用 fastlane 更合适。
 
 ## 安装
+
+```bash
+npm i -g appstorectl
+```
+
+或从源码：
 
 ```bash
 git clone https://github.com/jqlong17/appstorectl.git
@@ -43,6 +50,40 @@ export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 ```
 
 请把 `.p8` 也复制到 `~/.appstoreconnect/private_keys/`。`xcrun altool` 会去那里找密钥。永远不要把密钥提交进仓库。
+
+最小一趟（配置好 `apps/example` 指向你的工程之后）：
+
+```bash
+appstorectl doctor example
+appstorectl build example
+appstorectl upload-build example
+appstorectl attach-build example --wait
+appstorectl sync-metadata example --create-version
+appstorectl submit example --yes
+```
+
+## 演示
+
+- 流程图：[docs/assets/release-pipeline.svg](./docs/assets/release-pipeline.svg)
+- 终端 ASCII 走查：[docs/demo.md](./docs/demo.md)
+- 推广短文：[docs/promo.md](./docs/promo.md)
+
+```text
+doctor → build → upload → attach → sync → submit
+```
+
+## 为什么要做这个
+
+App Store Connect API 能处理不少重复劳动，但有几处很容易踩坑：
+
+- API Key **不能创建 App 记录**（`POST /v1/apps` 会返回 403）
+- API Key **不能做 Cloud 签名**；导出 IPA 需要本机的 Distribution 证书，以及 `IOS_APP_STORE` 描述文件
+- `upload-build` **不会**把构建挂到版本上
+- 第一次上传的 IPA 会在 `PROCESSING` 里停几分钟；`--build 1` 也可能对不上营销版本号 `1.0`
+- App Privacy（营养标签）**没有公开的写入接口**，必须在网页里填写并 **Publish**
+- 旧的 `appStoreVersionSubmissions` 创建接口已经下线
+
+`appstorectl` 把这些步骤收成可以反复执行的命令。
 
 ## 加入你自己的 App（保持私有）
 
@@ -91,6 +132,8 @@ appstorectl submit myapp --yes             # 没有 --yes 会拒绝提交
 - [docs/first-ios-app.md](./docs/first-ios-app.md) — 第一次提交、协议横幅、等待 PROCESSING
 - [docs/review-submission.md](./docs/review-submission.md) — `reviewSubmissions` 三步流程
 - [docs/signing.md](./docs/signing.md) — 本机 Distribution 签名
+- [docs/demo.md](./docs/demo.md) — 终端演示走查
+- [docs/promo.md](./docs/promo.md) — 推广短文（中文）
 
 ## 这个工具不会做的事
 
