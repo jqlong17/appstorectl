@@ -10,19 +10,40 @@
     "help": "node ./bin/appstorectl.js --help",
     "doctor": "node ./bin/appstorectl.js doctor example"
   },
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "scripts",
+    "skill",
+    "apps/example",
+    "profiles/example.json",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=20"
   },
   "license": "MIT",
+  "homepage": "https://github.com/jqlong17/appstorectl",
+  "bugs": {
+    "url": "https://github.com/jqlong17/appstorectl/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jqlong17/appstorectl.git"
+    "url": "git+https://github.com/jqlong17/appstorectl.git"
   },
   "keywords": [
     "app-store",
     "app-store-connect",
     "ios",
+    "macos",
     "xcode",
-    "cli"
+    "cli",
+    "ipa",
+    "asc",
+    "fastlane-alternative",
+    "indie-dev"
   ]
 }
